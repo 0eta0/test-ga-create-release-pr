@@ -27,18 +27,17 @@ jobs:
           echo "PREVIOUS_TAG: $PREVIOUS_TAG"
           COMMIT_SUMMARY="$(git log --oneline --pretty=tformat:"%h %s" $PREVIOUS_TAG..${{github.ref_name}})"
           COMMIT_SUMMARY="${COMMIT_SUMMARY//$'\n'/'%0A'}"
-          echo $COMMIT_SUMMARY
           echo ::set-output name=COMMIT_SUMMARY::$COMMIT_SUMMARY
 
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ steps.get_version.outputs.VERSION }}
-      #     release_name: Release ${{ steps.get_version.outputs.VERSION }}
-      #     body: |
-      #       ${{ steps.get_commit_summary.outputs.COMMIT_SUMMARY }}
-      #     draft: false
-      #     prerelease: false
+      - name: create PR to master
+        uses: actions/github-script@v4.0.2
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.pulls.create({
+              ...context.repo,
+              head: "develop",
+              base: "master",
+              title: "release v${{github.ref_name}} to master",
+              body: "${{ steps.get_commit_summary.outputs.COMMIT_SUMMARY }}"
+            });
