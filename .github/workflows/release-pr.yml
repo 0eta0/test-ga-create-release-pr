@@ -18,7 +18,9 @@ jobs:
 
       - name: get the release version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/\d\.\d\.\d}
+        run: |
+          echo ${GITHUB_REF#refs/tags/\d\.\d\.\d}
+          echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/\d\.\d\.\d} 
 
       # - name: Get commit summary
       #   id: get_commit_summary
