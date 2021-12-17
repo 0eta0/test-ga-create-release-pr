@@ -17,14 +17,23 @@ jobs:
           fetch-depth: 0
 
       - name: get commit diff summary
-        id: get_commit_diff_summary
+        id: get_previous_tag
         run: |
           PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -E '^[0-9]*\.[0-9]*\.[0-9]*' | sed -n 2p)
           echo "PREVIOUS_TAG: $PREVIOUS_TAG"
-          COMMIT_SUMMARY="$(git log --oneline --pretty=tformat:"%h %s" $PREVIOUS_TAG..${{github.ref_name}})"
-          COMMIT_SUMMARY="${COMMIT_SUMMARY//$'\n'/'%0A'}"
-          echo ::set-output name=COMMIT_SUMMARY::$COMMIT_SUMMARY
+          echo ::set-output name=PREVIOUS_TAG::$PREVIOUS_TAG
 
+      - name: generate release note
+        id: get_release_note
+        run: |
+          let RELEASE_NOTES = await github.releases.generate-notes({
+            ...context.repo,
+            tag_name: "${{github.ref_name}}",
+            previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
+          })
+          echo $RELEASE_NOTES
+          echo ::set-output name=RELEASE_NOTES::$RELEASE_NOTES
+ 
       - name: create PR to master from develop
         uses: actions/github-script@v4.0.2
         with:
@@ -35,5 +44,5 @@ jobs:
               head: "develop",
               base: "master",
               title: "release v${{github.ref_name}} to master",
-              body: "${{steps.get_commit_diff_summary.outputs.COMMIT_SUMMARY}}"
+              body: "${{steps.get_release_note.outputs.RELEASE_NOTES}}"
             });
