@@ -26,14 +26,16 @@ jobs:
       - name: generate release note
         id: get_release_note
         uses: actions/github-script@v4.0.2
-        run: |
-          const RELEASE_NOTES = await github.repos.generateReleaseNotes({
-            ...context.repo,
-            tag_name: "${{github.ref_name}}",
-            previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
-          });
-          echo $RELEASE_NOTES
-          echo ::set-output name=RELEASE_NOTES::$RELEASE_NOTES
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const RELEASE_NOTES = await github.repos.generateReleaseNotes({
+              ...context.repo,
+              tag_name: "${{github.ref_name}}",
+              previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
+            });
+            echo $RELEASE_NOTES
+            echo ::set-output name=RELEASE_NOTES::$RELEASE_NOTES
  
       - name: create PR to master from develop
         uses: actions/github-script@v4.0.2
