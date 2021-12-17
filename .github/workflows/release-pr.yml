@@ -4,7 +4,7 @@ on:
   push:
     tags:
       # 数字だけで構成されてるタグ( = release)
-      - '^\d\.\d\.\d'
+      - '\d\.\d\.\d'
 
 jobs:
   build:
