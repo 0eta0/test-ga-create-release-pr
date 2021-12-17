@@ -16,10 +16,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: get the release version
-        id: get_version
-        run: echo ::set-output name=VERSION::${{github.ref_name}}
-
       - name: get commit diff summary
         id: get_commit_diff_summary
         run: |
@@ -29,7 +25,7 @@ jobs:
           COMMIT_SUMMARY="${COMMIT_SUMMARY//$'\n'/'%0A'}"
           echo ::set-output name=COMMIT_SUMMARY::$COMMIT_SUMMARY
 
-      - name: create PR to master
+      - name: create PR to master from develop
         uses: actions/github-script@v4.0.2
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -39,5 +35,5 @@ jobs:
               head: "develop",
               base: "master",
               title: "release v${{github.ref_name}} to master",
-              body: "$steps.get_commit_summary.outputs.COMMIT_SUMMARY"
+              body: "${{steps.get_commit_diff_summary.outputs.COMMIT_SUMMARY}}"
             });
