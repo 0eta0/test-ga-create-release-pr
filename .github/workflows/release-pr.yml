@@ -29,13 +29,12 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const RELEASE_NOTES = await github.repos.generateReleaseNotes({
+            const notes = await github.repos.generateReleaseNotes({
               ...context.repo,
               tag_name: "${{github.ref_name}}",
               previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
             });
-            echo $RELEASE_NOTES
-            echo ::set-output name=RELEASE_NOTES::$RELEASE_NOTES
+            return notes
  
       - name: create PR to master from develop
         uses: actions/github-script@v4.0.2
@@ -47,5 +46,6 @@ jobs:
               head: "develop",
               base: "master",
               title: "release v${{github.ref_name}} to master",
-              body: "${{steps.get_release_note.outputs.RELEASE_NOTES}}"
+              body: "${{steps.get_release_note.outputs.result}}",
+              draft: true
             });
