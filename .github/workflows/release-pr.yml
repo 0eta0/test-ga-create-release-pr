@@ -1,0 +1,43 @@
+name: Create Release PR
+
+on:
+  push:
+    tags:
+      # 数字だけで構成されてるタグ( = release)
+      - '\d\.\d\.\d'
+
+jobs:
+  build:
+    name: create release PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: get the release version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/\d\.\d\.\d}
+
+      # - name: Get commit summary
+      #   id: get_commit_summary
+      #   run: |
+      #     PREVIOUS_TAG=$(git tag --sort=-creatordate | sed -n 2p)
+      #     echo "PREVIOUS_TAG: $PREVIOUS_TAG"
+      #     COMMIT_SUMMARY="$(git log --oneline --pretty=tformat:"%h %s" $PREVIOUS_TAG..${{ github.ref }})"
+      #     COMMIT_SUMMARY="${COMMIT_SUMMARY//$'\n'/'%0A'}"
+      #     echo ::set-output name=COMMIT_SUMMARY::$COMMIT_SUMMARY
+
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ steps.get_version.outputs.VERSION }}
+      #     release_name: Release ${{ steps.get_version.outputs.VERSION }}
+      #     body: |
+      #       ${{ steps.get_commit_summary.outputs.COMMIT_SUMMARY }}
+      #     draft: false
+      #     prerelease: false
