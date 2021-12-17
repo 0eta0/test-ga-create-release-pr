@@ -30,7 +30,7 @@ jobs:
             ...context.repo,
             tag_name: "${{github.ref_name}}",
             previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
-          })
+          });
           echo $RELEASE_NOTES
           echo ::set-output name=RELEASE_NOTES::$RELEASE_NOTES
  
