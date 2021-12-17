@@ -26,7 +26,7 @@ jobs:
       - name: generate release note
         id: get_release_note
         run: |
-          let RELEASE_NOTES = await github.releases.generate-notes({
+          let RELEASE_NOTES = await github.repos.generateReleaseNotes({
             ...context.repo,
             tag_name: "${{github.ref_name}}",
             previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
