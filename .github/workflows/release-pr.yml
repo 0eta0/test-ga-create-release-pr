@@ -43,6 +43,6 @@ jobs:
               ...context.repo,
               head: "develop",
               base: "master",
-              title: `release v${process.env.VERSION}to master`,
-              body: "${process.env.summary}}"
+              title: `release v${process.env.VERSION} to master`,
+              body: process.env.summary
             });
