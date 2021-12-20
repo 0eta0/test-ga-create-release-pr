@@ -42,12 +42,6 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            # const notes = await github.request('POST /repos/{owner}/{repo}/releases/generate-notes', {
-            #   owner: context.repo.owner,
-            #   repo: context.repo.repo,
-            #   tag_name: 'tag_name',
-            #   previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
-            # });
             return "**Full Changelog**: https://github.com/0eta0/test-ga-create-release-pr/compare/0.2.9...0.3.0"
 
       # - name: generate release note
