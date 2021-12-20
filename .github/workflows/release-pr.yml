@@ -37,7 +37,7 @@ jobs:
               tag_name: process.env.VERSION,
               previous_tag_name: process.env.PREVIOUS_TAG
             });
-            return notes
+            return notes;
 
       - name: create PR to master from develop
         uses: actions/github-script@v5
