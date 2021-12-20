@@ -23,19 +23,6 @@ jobs:
           echo "PREVIOUS_TAG: $PREVIOUS_TAG"
           echo ::set-output name=PREVIOUS_TAG::$PREVIOUS_TAG
 
-      # - name: generate release note
-      #   id: get_release_note
-      #   uses: actions/github-script@v5
-      #   with:
-      #     github-token: ${{secrets.GITHUB_TOKEN}}
-      #     script: |
-      #       const notes = await github.rest.repos.generateReleaseNotes({
-      #         ...context.repo,
-      #         tag_name: "${{github.ref_name}}",
-      #         previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
-      #       });
-      #       return notes
-
       - name: generate release note
         id: get_release_note
         uses: actions/github-script@v5
