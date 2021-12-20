@@ -29,6 +29,24 @@ jobs:
           NOTES=$(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'authorization: Bearer ${{secrets.GITHUB_TOKEN}}'  https://api.github.com/repos/${{github.repository}}/releases/generate-notes -d '{"tag_name":"${{github.ref_name}}", "previous_tag_name":"${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"}' | jq -r .body)
           echo ::set-output name=NOTES::$NOTES
 
+      - name: check same pr is exist
+        id: get_pr_list
+        uses: actions/github-script@v5
+        env:
+          VERSION: ${{github.ref_name}}
+          SUMMARY: ${{steps.get_release_note.outputs.NOTES}}
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const list = await octokit.rest.pulls.list({
+              ...context.repo,
+            });
+            return list;
+
+      - name: print pr list
+        run: |
+          echo ${{steps.get_pr_list.outputs.result}}
+
       - name: create PR to master from develop
         uses: actions/github-script@v5
         env:
@@ -41,6 +59,6 @@ jobs:
               ...context.repo,
               head: "develop",
               base: "master",
-              title: `release v${process.env.VERSION} to master`,
+              title: `[release] v${process.env.VERSION} to master`,
               body: process.env.SUMMARY
             });
