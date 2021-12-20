@@ -30,7 +30,7 @@ jobs:
           echo $NOTES
           echo ::set-output name=NOTES::$NOTES
 
-      - name: check same pr is exist
+      - name: check same PR is exist
         id: get_pr_list
         uses: actions/github-script@v5
         env:
