@@ -16,28 +16,81 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: get the release version
-        id: get_version
-        run: echo ::set-output name=VERSION::${{github.ref_name}}
-
       - name: get commit diff summary
-        id: get_commit_diff_summary
+        id: get_previous_tag
         run: |
           PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -E '^[0-9]*\.[0-9]*\.[0-9]*' | sed -n 2p)
           echo "PREVIOUS_TAG: $PREVIOUS_TAG"
-          COMMIT_SUMMARY="$(git log --oneline --pretty=tformat:"%h %s" $PREVIOUS_TAG..${{github.ref_name}})"
-          COMMIT_SUMMARY="${COMMIT_SUMMARY//$'\n'/'%0A'}"
-          echo ::set-output name=COMMIT_SUMMARY::$COMMIT_SUMMARY
+          echo ::set-output name=PREVIOUS_TAG::$PREVIOUS_TAG
 
-      - name: create PR to master
-        uses: actions/github-script@v4.0.2
+      - name: generate release note
+        id: get_release_note
+        run: |
+          NOTES=$(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'authorization: Bearer ${{secrets.GITHUB_TOKEN}}'  https://api.github.com/repos/${{github.repository}}/releases/generate-notes -d '{"tag_name":"${{github.ref_name}}", "previous_tag_name":"${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"}' | jq .body | sed -e "s/\"/ /g" -e "s/\\\n/%0A/g")
+          echo $NOTES
+          echo ::set-output name=NOTES::$NOTES
+
+      - name: check same PR is exist
+        id: get_pr_list
+        uses: actions/github-script@v5
+        env:
+          VERSION: ${{github.ref_name}}
+          SUMMARY: ${{steps.get_release_note.outputs.NOTES}}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            github.pulls.create({
+            const list = await github.rest.pulls.list({
               ...context.repo,
               head: "develop",
               base: "master",
-              title: "release v${{github.ref_name}} to master",
-              body: "${{ steps.get_commit_summary.outputs.COMMIT_SUMMARY }}"
+              state: "open"
+            });
+            return list;
+
+      - name: get PR id
+        id: get_pr_id
+        uses: actions/github-script@v5
+        env:
+          JSON: ${{steps.get_pr_list.outputs.result}}
+        with:
+          script: |
+            const parsed = JSON.parse(process.env.JSON);
+            const pull_number = 0 < Object.keys(parsed.data).length ? parsed.data[0].number : "";
+            console.log("number => ", pull_number);
+            return pull_number;
+
+      - name: create PR to master from develop
+        if: "steps.get_pr_id.outputs.result == ''"
+        uses: actions/github-script@v5
+        env:
+          VERSION: ${{github.ref_name}}
+          SUMMARY: ${{steps.get_release_note.outputs.NOTES}}
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.pulls.create({
+              ...context.repo,
+              head: "develop",
+              base: "master",
+              title: `[release] v${process.env.VERSION} to master`,
+              body: process.env.SUMMARY,
+              draft: true
+            });
+
+      - name: update PR to master from develop
+        if: "steps.get_pr_id.outputs.result != ''"
+        uses: actions/github-script@v5
+        env:
+          VERSION: ${{github.ref_name}}
+          SUMMARY: ${{steps.get_release_note.outputs.NOTES}}
+          PULL_NUMBER: ${{steps.get_pr_id.outputs.result}}
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.pulls.update({
+              ...context.repo,
+              pull_number: process.env.PULL_NUMBER,
+              title: `[release] v${process.env.VERSION} to master`,
+              body: process.env.SUMMARY,
+              draft: true
             });
