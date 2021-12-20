@@ -38,12 +38,13 @@ jobs:
 
       - name: generate release note
         id: get_release_note
-        uses: actions/github-script@v5
+        uses: actions/github-script@v5👌
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const notes = await github.request('POST /repos/{owner}/{repo}/releases/generate-notes', {
-              ...context.repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               tag_name: 'tag_name',
               previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
             });
