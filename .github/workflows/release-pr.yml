@@ -55,12 +55,12 @@ jobs:
         with:
           script: |
             const parsed = JSON.parse(process.env.JSON);
-            const pull_number = 0 < Object.keys(parsed.data).length ? parsed.data[0].number : "";
+            const pull_number = 0 < Object.keys(parsed.data).length ? parsed.data[0].number : -1;
             console.log("number => ", pull_number);
             return pull_number;
 
       - name: create PR to master from develop
-        if: "steps.get_pr_id.outputs.result == ''"
+        if: "steps.get_pr_id.outputs.result == -1"
         uses: actions/github-script@v5
         env:
           VERSION: ${{github.ref_name}}
@@ -78,7 +78,7 @@ jobs:
             });
 
       - name: update PR to master from develop
-        if: "steps.get_pr_id.outputs.result != ''"
+        if: "steps.get_pr_id.outputs.result != -1"
         uses: actions/github-script@v5
         env:
           VERSION: ${{github.ref_name}}
