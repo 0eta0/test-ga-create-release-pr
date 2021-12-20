@@ -38,8 +38,8 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const list = await octokit.rest.pulls.list({
-              ...context.repo,
+            const list = await github.rest.search.issuesAndPullRequests({
+              q: `is:pr%20label:release%20repo:${context.owner}/${context.repo.repo}`
             });
             return list;
 
@@ -60,5 +60,6 @@ jobs:
               head: "develop",
               base: "master",
               title: `[release] v${process.env.VERSION} to master`,
-              body: process.env.SUMMARY
+              body: process.env.SUMMARY,
+              draft: true
             });
