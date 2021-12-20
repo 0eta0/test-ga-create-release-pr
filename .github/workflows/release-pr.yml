@@ -38,16 +38,30 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const list = await github.rest.search.issuesAndPullRequests({
-              q: `is:pr%20label:release%20repo:${context.owner}/${context.repo.repo}`
+            const list = await github.rest.pulls.list({
+              ...context.repo,
+              head: "develop",
+              base: "master",
+              state: "open"
             });
             return list;
 
-      - name: print pr list
-        run: |
-          echo ${{steps.get_pr_list.outputs.result}}
+      - name: get PR id
+        id: get_pr_id
+        uses: actions/github-script@v5
+        env:
+          JSON: ${{steps.get_pr_list.outputs.result}}
+        with:
+          script: |
+            const parsed = JSON.parse(process.env.JSON);
+            if (0 < Object.keys(parsed.data).length) {
+              return parsed.data[0].number;
+            } else {
+              return "";
+            };
 
       - name: create PR to master from develop
+        if: "steps.get_pr_id.outputs.result == ''"
         uses: actions/github-script@v5
         env:
           VERSION: ${{github.ref_name}}
@@ -59,6 +73,24 @@ jobs:
               ...context.repo,
               head: "develop",
               base: "master",
+              title: `[release] v${process.env.VERSION} to master`,
+              body: process.env.SUMMARY,
+              draft: true
+            });
+
+      - name: update PR to master from develop
+        if: "steps.get_pr_id.outputs.result != ''"
+        uses: actions/github-script@v5
+        env:
+          VERSION: ${{github.ref_name}}
+          SUMMARY: ${{steps.get_release_note.outputs.NOTES}}
+          PULL_NUMBER: ${{steps.get_pr_id.outputs.result}}
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.pulls.update({
+              ...context.repo,
+              pull_number: process.env.PULL_NUMBER,
               title: `[release] v${process.env.VERSION} to master`,
               body: process.env.SUMMARY,
               draft: true
