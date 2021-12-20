@@ -38,8 +38,9 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const list = await github.rest.pulls.list({
+            const list = await octokit.rest.search.issuesAndPullRequests({
               ...context.repo,
+              q: `is:pr%20label:release%20repo:${context.owner}/${context.repo.repo}`
             });
             return list;
 
