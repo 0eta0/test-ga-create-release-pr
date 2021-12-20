@@ -33,11 +33,11 @@ jobs:
 
       - name: create PR to master from develop
         uses: actions/github-script@v5
+        env:
+          VERSION: ${{github.ref_name}}
+          SUMMARY: ${{steps.get_release_note.outputs.result}}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          env:
-            VERSION: ${{github.ref_name}}
-            SUMMARY: ${{steps.get_release_note.outputs.result}}
           script: |
             github.rest.pulls.create({
               ...context.repo,
