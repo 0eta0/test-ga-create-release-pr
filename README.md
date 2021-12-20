@@ -5,3 +5,7 @@ categories:
     labels:
     - enhancement
     - feature
+- title: 【改善】
+    labels:
+    - improvement
+    - fix
