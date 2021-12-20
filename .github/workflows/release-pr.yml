@@ -54,7 +54,7 @@ jobs:
         with:
           script: |
             const parsed = JSON.parse(process.env.JSON);
-            if (0 < parsed.data.length) {
+            if (0 < Object.keys(parsed.data).length) {
               return parsed.data[0].number;
             } else {
               return "";
