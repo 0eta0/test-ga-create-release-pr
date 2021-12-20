@@ -60,5 +60,6 @@ jobs:
               head: "develop",
               base: "master",
               title: `[release] v${process.env.VERSION} to master`,
-              body: process.env.SUMMARY
+              body: process.env.SUMMARY,
+              draft: true
             });
