@@ -9,3 +9,7 @@ categories:
     labels:
     - improvement
     - fix
+- title: 【開発関係】
+    labels:
+    - development
+    - chore
