@@ -31,22 +31,14 @@ jobs:
           script: |
             return "**Full Changelog**: https://github.com/0eta0/test-ga-create-release-pr/compare/0.2.9...0.3.0"
 
-      # - name: generate release note
-      #   id: get_release_note
-      #   run: |
-      #     #  oktokitがまだ対応してないっぽい？
-      #     echo $(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'  https://api.github.com/repos/${{ github.repository }}/releases/generate-notes -d '{"tag_name":"${{github.ref_name}}", "previous_tag_name":"${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"}' | jq .body | sed 's,",,g' | sed "s,',,g")
-      #     $NOTES = $(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'  https://api.github.com/repos/${{ github.repository }}/releases/generate-notes -d '{"tag_name":"${{github.ref_name}}", "previous_tag_name":"${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"}' | jq .body | sed 's,",,g' | sed "s,',,g")
-      #     echo $NOTES
-      #     echo ::set-output name=NOTES::$NOTES
-
       - name: create PR to master from develop
-        uses: actions/github-script@v5
+        uses: actions/github-script@v4.0.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             github.rest.pulls.create({
-              ...context.repo,
+              owner: context.github.repository_owner,
+              repo: context.github.repository,
               head: "develop",
               base: "master",
               title: "release v${{github.ref_name}} to master",
