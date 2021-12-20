@@ -42,7 +42,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const notes = await octokit.request('POST /repos/{owner}/{repo}/releases/generate-notes', {
+            const notes = await github.request('POST /repos/{owner}/{repo}/releases/generate-notes', {
               ...context.repo,
               tag_name: 'tag_name',
               previous_tag_name: "${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"
