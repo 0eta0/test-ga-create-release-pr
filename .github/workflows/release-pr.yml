@@ -62,7 +62,7 @@ jobs:
             };
 
       - name: create PR to master from develop
-        if: "steps.get_pr_id.outputs.PULL_NUMBER == ''"
+        if: "steps.get_pr_id.outputs.result == ''"
         uses: actions/github-script@v5
         env:
           VERSION: ${{github.ref_name}}
@@ -80,7 +80,7 @@ jobs:
             });
 
       - name: update PR to master from develop
-        if: "steps.get_pr_id.outputs.PULL_NUMBER != ''"
+        if: "steps.get_pr_id.outputs.result != ''"
         uses: actions/github-script@v5
         env:
           VERSION: ${{github.ref_name}}
