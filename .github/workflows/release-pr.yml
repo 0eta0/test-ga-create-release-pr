@@ -26,7 +26,7 @@ jobs:
       - name: generate release note
         id: get_release_note
         run: |
-          NOTES=$(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'authorization: Bearer ${{secrets.GITHUB_TOKEN}}'  https://api.github.com/repos/${{github.repository}}/releases/generate-notes -d '{"tag_name":"${{github.ref_name}}", "previous_tag_name":"${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"}' | jq .body | sed -e "s/'/ /g" | sed -e "s/\"/ /g")
+          NOTES=$(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'authorization: Bearer ${{secrets.GITHUB_TOKEN}}'  https://api.github.com/repos/${{github.repository}}/releases/generate-notes -d '{"tag_name":"${{github.ref_name}}", "previous_tag_name":"${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"}' | jq .body | sed -e "s/'/ /g" | sed -e "s/\"/ /g" | sed -e "s/\n/\\n/g")
           echo $NOTES
           echo ::set-output name=NOTES::$NOTES
 
@@ -85,7 +85,7 @@ jobs:
         env:
           VERSION: ${{github.ref_name}}
           SUMMARY: ${{steps.get_release_note.outputs.NOTES}}
-          PULL_NUMBER: ${{steps.get_pr_id.outputs.PULL_NUMBER}}
+          PULL_NUMBER: ${{steps.get_pr_id.outputs.result}}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
