@@ -41,6 +41,5 @@ jobs:
               head: "develop",
               base: "master",
               title: "release v${{github.ref_name}} to master",
-              body: "${{steps.get_release_note.outputs.result}}",
-              draft: true
+              body: "${{steps.get_release_note.outputs.result}}"
             });
