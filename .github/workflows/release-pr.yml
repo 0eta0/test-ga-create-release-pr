@@ -49,20 +49,27 @@ jobs:
 
       - name: get PR id
         id: get_pr_id
-        uses: actions/github-script@v5
-        env:
-          JSON: ${{steps.get_pr_list.outputs.result}}
-        with:
-          script: |
-            const parsed = JSON.parse(process.env.JSON);
-            if (0 < Object.keys(parsed.data).length) {
-              return parsed.data[0].number;
-            } else {
-              return "";
-            };
+        run: |
+          PULL_NUMBER=$(echo $pulls | jq '.data.[0].number')
+          echo $PULL_NUMBER
+          echo ::set-output name=PULL_NUMBER::$PULL_NUMBER
+
+      # - name: get PR id
+      #   id: get_pr_id
+      #   uses: actions/github-script@v5
+      #   env:
+      #     JSON: ${{steps.get_pr_list.outputs.result}}
+      #   with:
+      #     script: |
+      #       const parsed = JSON.parse(process.env.JSON);
+      #       if (0 < Object.keys(parsed.data).length) {
+      #         return parsed.data[0].number;
+      #       } else {
+      #         return "";
+      #       };
 
       - name: create PR to master from develop
-        if: "steps.get_pr_id.outputs.result == ''"
+        if: "steps.get_pr_id.outputs.PULL_NUMBER == ''"
         uses: actions/github-script@v5
         env:
           VERSION: ${{github.ref_name}}
@@ -80,12 +87,12 @@ jobs:
             });
 
       - name: update PR to master from develop
-        if: "steps.get_pr_id.outputs.result != ''"
+        if: "steps.get_pr_id.outputs.PULL_NUMBER != ''"
         uses: actions/github-script@v5
         env:
           VERSION: ${{github.ref_name}}
           SUMMARY: ${{steps.get_release_note.outputs.NOTES}}
-          PULL_NUMBER: ${{steps.get_pr_id.outputs.result}}
+          PULL_NUMBER: ${{steps.get_pr_id.outputs.PULL_NUMBER}}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
