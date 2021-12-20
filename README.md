@@ -13,3 +13,6 @@ categories:
     labels:
     - development
     - chore
+- title: 【その他】
+        labels:
+        - "*"
