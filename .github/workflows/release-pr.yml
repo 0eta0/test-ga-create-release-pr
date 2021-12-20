@@ -26,7 +26,7 @@ jobs:
       - name: generate release note
         id: get_release_note
         run: |
-          NOTES=$(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'authorization: Bearer ${{secrets.GITHUB_TOKEN}}'  https://api.github.com/repos/${{github.repository}}/releases/generate-notes -d '{"tag_name":"${{github.ref_name}}", "previous_tag_name":"${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"}' | jq .body | sed -e "s/'//g" | sed -e "s/\"//g" | sed -e "s/\n/\\n/g")
+          NOTES=$(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'authorization: Bearer ${{secrets.GITHUB_TOKEN}}'  https://api.github.com/repos/${{github.repository}}/releases/generate-notes -d '{"tag_name":"${{github.ref_name}}", "previous_tag_name":"${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}"}' | jq .body | sed -e "s/'/ /g" | sed -e "s/\"/ /g")
           echo $NOTES
           echo ::set-output name=NOTES::$NOTES
 
@@ -49,24 +49,17 @@ jobs:
 
       - name: get PR id
         id: get_pr_id
-        run: |
-          PULL_NUMBER=$(echo $pulls | jq '.data.[0].number')
-          echo $PULL_NUMBER
-          echo ::set-output name=PULL_NUMBER::$PULL_NUMBER
-
-      # - name: get PR id
-      #   id: get_pr_id
-      #   uses: actions/github-script@v5
-      #   env:
-      #     JSON: ${{steps.get_pr_list.outputs.result}}
-      #   with:
-      #     script: |
-      #       const parsed = JSON.parse(process.env.JSON);
-      #       if (0 < Object.keys(parsed.data).length) {
-      #         return parsed.data[0].number;
-      #       } else {
-      #         return "";
-      #       };
+        uses: actions/github-script@v5
+        env:
+          JSON: ${{steps.get_pr_list.outputs.result}}
+        with:
+          script: |
+            const parsed = JSON.parse(process.env.JSON);
+            if (0 < Object.keys(parsed.data).length) {
+              return parsed.data[0].number;
+            } else {
+              return "";
+            };
 
       - name: create PR to master from develop
         if: "steps.get_pr_id.outputs.PULL_NUMBER == ''"
