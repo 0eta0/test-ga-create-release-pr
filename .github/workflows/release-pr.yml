@@ -26,10 +26,18 @@ jobs:
       - name: generate release note
         id: get_release_note
         uses: actions/github-script@v5
+        env:
+          VERSION: ${{github.ref_name}}
+          PREVIOUS_TAG: ${{steps.get_previous_tag.outputs.PREVIOUS_TAG}}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            return "**Full Changelog**: https://github.com/0eta0/test-ga-create-release-pr/compare/0.2.9...0.3.0";
+            const notes = await github.rest.repos.generateReleaseNotes({
+              ...context.repo,
+              tag_name: process.env.VERSION,
+              previous_tag_name: process.env.PREVIOUS_TAG
+            });
+            return notes
 
       - name: create PR to master from develop
         uses: actions/github-script@v5
