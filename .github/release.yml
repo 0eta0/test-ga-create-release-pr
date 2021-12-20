@@ -18,6 +18,5 @@ changelog:
         - development
         - chore
     - title: 【その他】
-          labels:
-            - "*"
-
+      labels:
+        - "*"
