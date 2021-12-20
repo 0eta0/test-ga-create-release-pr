@@ -50,7 +50,7 @@ jobs:
         id: get_pr_id
         uses: actions/github-script@v5
         env:
-          JSON: ${{toJSON(steps.get_pr_list.outputs.result)}}
+          JSON: ${{steps.get_pr_list.outputs.result}}
         with:
           script: |
             const parsed = JSON.parse(process.env.JSON);
