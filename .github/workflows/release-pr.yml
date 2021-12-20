@@ -54,6 +54,12 @@ jobs:
         with:
           script: |
             const parsed = JSON.parse(process.env.JSON);
+            console.log(parsed)
+            console.log(parsed.data)
+            console.log(parsed.data.length)
+            console.log(Object.keys(parsed.data).length)
+            console.log(parsed.data[0])
+            console.log(parsed.data[0].number)
             if (0 < Object.keys(parsed.data).length) {
               return parsed.data[0].number;
             } else {
