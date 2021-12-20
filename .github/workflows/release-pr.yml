@@ -30,7 +30,7 @@ jobs:
           echo $NOTES
           NOTES=$(echo $NOTES | sed -e "s/\"/ /g")
           echo $NOTES
-          NOTES=$(echo $NOTES | sed -e "s/\\\n/<br>/g")
+          NOTES=$(echo $NOTES | sed -e "s/\\\n/%0A/g")
           echo $NOTES
           echo ::set-output name=NOTES::$NOTES
 
