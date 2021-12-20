@@ -25,20 +25,19 @@ jobs:
 
       - name: generate release note
         id: get_release_note
-        uses: actions/github-script@v5
+        uses: actions/github-script@v4.0.2
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             return "**Full Changelog**: https://github.com/0eta0/test-ga-create-release-pr/compare/0.2.9...0.3.0"
 
       - name: create PR to master from develop
-        uses: actions/github-script@v5
+        uses: actions/github-script@v4.0.2
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            github.rest.pulls.create({
-              owner: context.github.repository_owner,
-              repo: context.github.repository,
+            github.pulls.create({
+              ...context.repo,
               head: "develop",
               base: "master",
               title: "release v${{github.ref_name}} to master",
