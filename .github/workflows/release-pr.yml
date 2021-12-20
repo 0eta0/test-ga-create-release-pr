@@ -31,19 +31,17 @@ jobs:
           script: |
             return "**Full Changelog**: https://github.com/0eta0/test-ga-create-release-pr/compare/0.2.9...0.3.0";
 
-      - name: print generated release note
-        run: |
-          echo ${{steps.get_release_note.outputs.result}}
-
-      # - name: create PR to master from develop
-      #   uses: actions/github-script@v5
-      #   with:
-      #     github-token: ${{secrets.GITHUB_TOKEN}}
-      #     script: |
-      #       github.rest.pulls.create({
-      #         ...context.repo,
-      #         head: "develop",
-      #         base: "master",
-      #         title: "release v${{github.ref_name}} to master",
-      #         body: "${{steps.get_release_note.outputs.result}}"
-      #       });
+      - name: create PR to master from develop
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          version: ${{github.ref_name}}
+          summary: ${{steps.get_release_note.outputs.result}}
+          script: |
+            github.rest.pulls.create({
+              ...context.repo,
+              head: "develop",
+              base: "master",
+              title: `release v${version}to master`,
+              body: "${summary}}"
+            });
