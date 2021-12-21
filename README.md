@@ -3,8 +3,8 @@ Hello World
 categories:
 - title: 【機能】
     labels:
-    - enhancement
-    - feature
+    - Type: enhancement
+    - Type: feature
 - title: 【改善】
     labels:
     - improvement
